@@ -8,7 +8,7 @@ def write_batch_to_parquet(data_list, data_type, batch_id, output_dir):
     if not data_list:
         return
     
-    df = pl.DataFrame([data for data in data_list if data is not None])
+    df = pl.DataFrame([data for data in data_list if data is not None], infer_schema_length=None)
     subdir = os.path.join(output_dir, f"{data_type}")
     Path(subdir).mkdir(parents=True, exist_ok=True)
 

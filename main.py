@@ -16,7 +16,9 @@ load_dotenv()
 
 RPC_URL = os.getenv("RPC_URL")
 OUTPUT_DIR = "sonic_data"
-BATCH_SIZE = 5
+BATCH_SIZE = os.getenv("BATCH_SIZE")
+END_BLOCK = os.getenv("END_BLOCK")
+
 
 CHECKPOINT_FILE = "checkpoint.json"
 
@@ -56,7 +58,7 @@ async def process_blocks_range(start_block, end_block, batch_size, output_dir, u
     batch_counter = 0
     total_blocks = end_block - start_block + 1
     total_batches = (total_blocks + batch_size - 1) // batch_size
-    semaphore = asyncio.Semaphore(5)
+    semaphore = asyncio.Semaphore(10)
 
     for batch_idx in tqdm.tqdm(range(total_batches), desc="Processing block batches"):
         batch_start = start_block + batch_idx * batch_size
@@ -114,7 +116,7 @@ async def main():
         load_checkpoint("logs"),
         load_checkpoint("traces")
     )
-    end_block = start_block + 20
+    end_block = start_block + END_BLOCK
     print(f"Processing blocks from {start_block} to {end_block}")
     await process_blocks_range(start_block, end_block, BATCH_SIZE, OUTPUT_DIR, RPC_URL)
     print("Processing completed successfully")
