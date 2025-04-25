@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  sonic_indexer:
+    build: .
+    container_name: sonic_indexer
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./sonic_data:/app/sonic_data
+      - ./checkpoint.json:/app/checkpoint.json
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
