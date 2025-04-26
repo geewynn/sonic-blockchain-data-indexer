@@ -1,7 +1,7 @@
 import asyncio
 from utils.rpc import safe_get_trace_filter
 
-async def process_traces(start_block, end_block, url, semaphore, micro_batch_size=500):
+async def process_traces(start_block, end_block, url, semaphore, micro_batch_size=100):
     traces = []
     for batch_start in range(start_block, end_block + 1, micro_batch_size):
         batch_end = min(batch_start + micro_batch_size - 1, end_block)
