@@ -16,8 +16,8 @@ load_dotenv()
 
 RPC_URL = os.getenv("RPC_URL")
 OUTPUT_DIR = "sonic_data"
-BATCH_SIZE = os.getenv("BATCH_SIZE")
-END_BLOCK = os.getenv("END_BLOCK")
+BATCH_SIZE = int(os.getenv("BATCH_SIZE"))
+END_BLOCK = int(os.getenv("END_BLOCK"))
 
 
 CHECKPOINT_FILE = "checkpoint.json"
@@ -66,8 +66,9 @@ async def process_blocks_range(start_block, end_block, batch_size, output_dir, u
 
         block_tasks = [process_block(block_num, url, semaphore) for block_num in range(batch_start, batch_end + 1)]
         receipt_tasks = [process_receipt(block_num, url, semaphore) for block_num in range(batch_start, batch_end + 1)]
-        log_task = process_logs(batch_start, batch_end, url, semaphore)
-        trace_task = process_traces(batch_start, batch_end, url, semaphore)
+        log_task = process_logs(batch_start, batch_end, url, semaphore, micro_batch_size=500)
+        trace_task = process_traces(batch_start, batch_end, url, semaphore, micro_batch_size=500)
+
 
         batch_blocks = await asyncio.gather(*block_tasks)
         batch_receipts = await asyncio.gather(*receipt_tasks)
@@ -91,14 +92,14 @@ async def process_blocks_range(start_block, end_block, batch_size, output_dir, u
                 upload_to_storage(receipts_path, os.path.relpath(receipts_path, output_dir))
 
         if batch_logs and batch_blocks:
-            logs_dir = get_partition_path(output_dir, "logs", batch_blocks[0], batch_blocks[-1])
-            logs_path = write_batch_to_parquet(batch_logs, "logs", batch_counter, logs_dir)
+            logs_dir = get_partition_path(output_dir, "logs_data", batch_blocks[0], batch_blocks[-1])
+            logs_path = write_batch_to_parquet(batch_logs, "logs_data", batch_counter, logs_dir)
             if logs_path:
                 upload_to_storage(logs_path, os.path.relpath(logs_path, output_dir))
 
         if batch_traces and batch_blocks:
-            trace_dir = get_partition_path(output_dir, "traces", batch_blocks[0], batch_blocks[-1])
-            traces_path = write_batch_to_parquet(batch_traces, "traces", batch_counter, trace_dir)
+            trace_dir = get_partition_path(output_dir, "traces_data", batch_blocks[0], batch_blocks[-1])
+            traces_path = write_batch_to_parquet(batch_traces, "traces_data", batch_counter, trace_dir)
             if traces_path:
                 upload_to_storage(traces_path, os.path.relpath(traces_path, output_dir))
 
