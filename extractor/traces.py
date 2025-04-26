@@ -1,6 +1,7 @@
 import asyncio
 from utils.rpc import safe_get_trace_filter
 
+
 async def process_traces(start_block, end_block, url, semaphore, micro_batch_size=100):
     traces = []
     for batch_start in range(start_block, end_block + 1, micro_batch_size):
@@ -13,6 +14,8 @@ async def process_traces(start_block, end_block, url, semaphore, micro_batch_siz
                         traces.extend(batch_traces)
                     break
                 except Exception as e:
-                    print(f"Error fetching traces {batch_start}-{batch_end}, attempt {attempt+1}: {str(e)}")
-                    await asyncio.sleep(2 ** attempt)
+                    print(
+                        f"Error fetching traces {batch_start}-{batch_end}, attempt {attempt+1}: {str(e)}"
+                    )
+                    await asyncio.sleep(2**attempt)
     return traces

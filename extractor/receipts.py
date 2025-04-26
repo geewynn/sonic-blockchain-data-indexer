@@ -1,4 +1,3 @@
-import asyncio
 from utils.rpc import get_block_receipts
 
 
@@ -7,9 +6,7 @@ async def process_receipt(block_num, url, semaphore):
     async with semaphore:
         try:
             receipt_data = get_block_receipts(block_hex, url)
-            # print(receipt_data)
             return receipt_data
         except Exception as e:
             print(f"Error fetching receipts {block_num}: {str(e)}")
             return None
-

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 def hex_to_int(hex_value: str):
     if hex_value is None:
         return None
