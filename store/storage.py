@@ -1,8 +1,12 @@
+import logging
 import polars as pl
 import os
 from dotenv import load_dotenv
 import boto3
 
+
+logger = logging.getLogger("logs")
+logger.setLevel(logging.INFO)
 load_dotenv()
 
 STORAGE_ACCESS_KEY = os.getenv("STORAGE_ACCESS_KEY")
@@ -25,13 +29,13 @@ def upload_to_storage(file_path, object_key=None):
 
     try:
         s3_client.upload_file(file_path, STORAGE_BUCKET_NAME, object_key)
-        print(f"Uploaded to Hetzner: s3://{STORAGE_BUCKET_NAME}/{object_key}")
+        logging.info(f"Uploaded to Hetzner: s3://{STORAGE_BUCKET_NAME}/{object_key}")
 
         # Optionally remove the local file after successful upload
         os.remove(file_path)
-        print(f"Removed local file: {file_path}")
+        logging.info(f"Removed local file: {file_path}")
 
         return f"s3://{STORAGE_BUCKET_NAME}/{object_key}"
     except Exception as e:
-        print(f"Error uploading to Hetzner: {str(e)}")
+        logging.info(f"Error uploading to Hetzner: {str(e)}")
         return None
