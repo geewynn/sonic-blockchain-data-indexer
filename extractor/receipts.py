@@ -1,9 +1,7 @@
-import logging
-
+from utils.logger_settings import get_logger
 from utils.rpc import get_block_receipts
 
-logger = logging.getLogger("logs")
-logger.setLevel(logging.INFO)
+logger = get_logger("receipts")
 
 
 async def process_receipt(block_num, url, semaphore):

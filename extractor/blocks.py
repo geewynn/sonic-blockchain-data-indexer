@@ -1,9 +1,7 @@
-import logging
-
+from utils.logger_settings import get_logger
 from utils.rpc import get_block
 
-logger = logging.getLogger("logs")
-logger.setLevel(logging.INFO)
+logger = get_logger("blocks")
 
 
 async def process_block(block_num, url, semaphore):

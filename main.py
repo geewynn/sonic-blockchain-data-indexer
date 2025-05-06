@@ -1,13 +1,6 @@
 import asyncio
-import json
 import logging
 import os
-import pathlib
-import tempfile
-from datetime import datetime, timezone
-from logging.handlers import RotatingFileHandler
-
-from dotenv import load_dotenv
 
 from extractor.blocks import process_block
 from extractor.logs import process_logs
@@ -15,33 +8,12 @@ from extractor.receipts import process_receipt
 from extractor.traces import process_traces
 from store.parquet_writer import write_batch_to_parquet
 from store.storage import upload_to_storage
+from utils.config import *
 from utils.helpers import get_partition_path, load_checkpoint, save_checkpoint
+from utils.logger_settings import get_logger
 
-load_dotenv()
-
-RPC_URL = os.getenv("RPC_URL")
-OUTPUT_DIR = os.getenv("OUTPUT_DIR")
-END_BLOCK = int(os.getenv("END_BLOCK"))
-LOGS_FOLDER = os.getenv("LOGS_FOLDER")
-TRACES_FOLDER = os.getenv("TRACES_FOLDER")
-BLOCKS_FOLDER = os.getenv("BLOCKS_FOLDER")
-RECEIPT_FOLDER = os.getenv("RECEIPT_FOLDER")
-BATCH_BLOCKS = int(os.getenv("BATCH_BLOCKS", "5000"))
-MICRO_BATCH_SIZE = int(os.getenv("MICRO_BATCH_SIZE", 20))
-LOG_DIR = os.getenv("LOG_DIR", "./logs")
-LOG_FILE = os.path.join(LOG_DIR, "logs.log")
-os.makedirs(LOG_DIR, exist_ok=True)
-
-logger = logging.getLogger("logs")
+logger = get_logger("main")
 logger.setLevel(logging.INFO)
-
-handler = RotatingFileHandler(LOG_FILE, maxBytes=500_000_000, backupCount=2)
-fmt = logging.Formatter(
-    "%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-handler.setFormatter(fmt)
-logger.addHandler(handler)
 
 
 async def run_blocks(start, end, url, sem):
@@ -90,7 +62,7 @@ async def run_receipts(start, end, url, sem):
 
 async def run_logs(start, end, url, sem):
     cur, buffer, first_blk = start, [], start
-    window = MICRO_BATCH_SIZE
+    window = MICRO_BATCH
     while cur <= end:
         rng_end = min(cur + window - 1, end)
         async with sem:
@@ -124,7 +96,7 @@ async def run_logs(start, end, url, sem):
 
 async def run_traces(start, end, url, sem):
     cur, buffer, first_blk = start, [], start
-    window = MICRO_BATCH_SIZE
+    window = MICRO_BATCH
     while cur <= end:
         rng_end = min(cur + window - 1, end)
         async with sem:
@@ -159,8 +131,8 @@ async def run_traces(start, end, url, sem):
 async def main():
 
     end_block = END_BLOCK
-    sem_blocks = asyncio.Semaphore(5) 
-    sem_receipts = asyncio.Semaphore(5) 
+    sem_blocks = asyncio.Semaphore(5)
+    sem_receipts = asyncio.Semaphore(5)
     sem_logs = asyncio.Semaphore(5)
     sem_traces = asyncio.Semaphore(5)
 

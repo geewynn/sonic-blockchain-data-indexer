@@ -1,18 +1,13 @@
 import logging
-import polars as pl
 import os
-from dotenv import load_dotenv
+
 import boto3
 
+from utils.config import (STORAGE_ACCESS_KEY, STORAGE_BUCKET_NAME,
+                          STORAGE_ENDPOINT_URL, STORAGE_SECRET_KEY)
+from utils.logger_settings import get_logger
 
-logger = logging.getLogger("logs")
-logger.setLevel(logging.INFO)
-load_dotenv()
-
-STORAGE_ACCESS_KEY = os.getenv("STORAGE_ACCESS_KEY")
-STORAGE_SECRET_KEY = os.getenv("STORAGE_SECRET_KEY")
-STORAGE_ENDPOINT_URL = os.getenv("STORAGE_ENDPOINT_URL")
-STORAGE_BUCKET_NAME = os.getenv("STORAGE_BUCKET_NAME")
+logger = get_logger("storage")
 
 s3_client = boto3.client(
     "s3",

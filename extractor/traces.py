@@ -1,10 +1,9 @@
 import asyncio
-import logging
 
+from utils.logger_settings import get_logger
 from utils.rpc import safe_get_trace_filter
 
-logger = logging.getLogger("logs")
-logger.setLevel(logging.INFO)
+logger = get_logger("traces")
 
 
 async def process_traces(start_block, end_block, url, semaphore, micro_batch_size=100):

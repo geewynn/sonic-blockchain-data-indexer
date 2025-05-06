@@ -1,8 +1,9 @@
-from datetime import datetime, timezone
 import json
 import os
 import pathlib
 import tempfile
+from datetime import datetime, timezone
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,7 +18,6 @@ def hex_to_int(hex_value: str):
     if isinstance(hex_value, int):
         return hex_value
     return int(hex_value, 16) if hex_value.startswith("0x") else int(hex_value, 16)
-
 
 
 def _file(name: str) -> pathlib.Path:
@@ -40,7 +40,6 @@ def save_checkpoint(extractor: str, block_num: int):
     os.fsync(tmp.fileno())
     tmp.close()
     os.replace(tmp.name, _file(extractor))
-
 
 
 def get_partition_path(base_dir, data_type, first_block_num, last_block_num):
