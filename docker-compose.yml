@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   sonic_indexer:
@@ -7,11 +7,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - CHECKPOINT_DIR=/app/checkpoints_files
     volumes:
       - ./sonic_data:/app/sonic_data
-      - ./checkpoint.json:/app/checkpoint.json
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+      - ./checkpoints_files:/app/checkpoints_files
