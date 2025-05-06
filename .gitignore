@@ -10,3 +10,6 @@ wheels/
 .venv
 .env
 old
+checkpoints_files/
+read_.py
+logs
